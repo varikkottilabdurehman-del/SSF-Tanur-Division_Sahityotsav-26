@@ -474,13 +474,13 @@
   window.savePosters = async () => {
     const raw = document.getElementById('posterUrlsInput')?.value || '';
     const urls = raw.split('\n').map(s => s.trim()).filter(Boolean);
-    if (!urls.length) { showToast('No URLs to save!', true); return; }
     try {
-      await set(ref(db, 'posters'), urls);
-      showToast('✓ ' + urls.length + ' poster(s) saved!');
+      await set(ref(db, 'posters'), urls.length ? urls : null);
+      showToast(urls.length ? '✓ ' + urls.length + ' poster(s) saved!' : '✓ Posters cleared!');
     } catch(e) { showToast('Error: ' + e.message, true); }
   };
-
+  
+  
   function loadPosters() {
     onValue(ref(db, 'posters'), snap => {
       const urls = snap.val();
