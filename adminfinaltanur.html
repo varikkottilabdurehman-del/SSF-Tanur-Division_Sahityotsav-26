@@ -423,72 +423,63 @@
   });
   
   
-  // ── BUILD POSTERS TAB ──
+// ── BUILD POSTERS TAB ──
   function buildPostersTab() {
     const c = document.getElementById('postersTabContent');
     c.innerHTML = `
       <div class="info-box">
-        Paste Cloudinary image URLs below — <strong>one URL per line</strong>. 
-        Each poster will appear with Download and Share buttons on the main site.
+        Add Cloudinary image URLs below. Each poster will appear with Download and Share buttons on the main site. Click <strong>×</strong> to remove a poster instantly.
       </div>
       <div class="meta-card">
-        <div class="meta-label">Poster URLs (one per line)</div>
-        <textarea 
-          id="posterUrlsInput" 
-          class="part-textarea" 
-          rows="12" 
-          placeholder="https://res.cloudinary.com/dekucljsf/image/upload/...&#10;https://res.cloudinary.com/dekucljsf/image/upload/...&#10;https://res.cloudinary.com/dekucljsf/image/upload/..."
-          style="width:100%; margin-top:12px; font-size:0.85rem; font-family:'Space Mono',monospace;"
-        ></textarea>
+        <div class="meta-label">Poster URLs</div>
+        <div id="posterUrlsList" style="display:flex; flex-direction:column; gap:10px; margin-top:12px;"></div>
+        <button class="save-btn" onclick="addPosterField('')" style="margin-top:14px; width:100%;">＋ Add Link</button>
       </div>
-      <div class="meta-card" style="margin-top:16px;">
-        <div class="meta-label">Preview (${0} posters)</div>
-        <div id="posterPreviewGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; margin-top:12px;"></div>
-      </div>
-      <div class="save-all-wrap" style="margin-top:24px; gap:12px; display:flex; justify-content:flex-end;">
-        <button class="save-btn" onclick="previewPosters()">👁️ Preview</button>
+      <div class="save-all-wrap" style="margin-top:24px;">
         <button class="btn-primary" onclick="savePosters()">💾 Save Posters</button>
       </div>
     `;
-
-    // Live preview on input
-    document.getElementById('posterUrlsInput').addEventListener('input', previewPosters);
   }
 
-  window.previewPosters = () => {
-    const raw = document.getElementById('posterUrlsInput')?.value || '';
-    const urls = raw.split('\n').map(s => s.trim()).filter(Boolean);
-    const grid = document.getElementById('posterPreviewGrid');
-    const label = grid?.previousElementSibling;
-    if (label) label.textContent = `Preview (${urls.length} poster${urls.length !== 1 ? 's' : ''})`;
-    if (!grid) return;
-    grid.innerHTML = urls.map((url, i) => `
-      <div style="border-radius:8px; overflow:hidden; border:1px solid #2a2a2a; background:#161616;">
-        <img src="${url}" alt="Poster ${i+1}" 
-          style="width:100%; aspect-ratio:1; object-fit:cover; display:block;"
-          onerror="this.style.background='#222'; this.style.minHeight='100px';">
-      </div>
-    `).join('');
+  window.addPosterField = (url) => {
+    const list = document.getElementById('posterUrlsList');
+    if (!list) return;
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex; gap:8px; align-items:center;';
+    row.innerHTML = `
+      <input type="text" value="${url}" placeholder="https://res.cloudinary.com/..." 
+        style="flex:1; background:#111; border:1px solid #2a2a2a; border-radius:6px; color:#e8e8e8; font-family:'Space Mono',monospace; font-size:0.82rem; padding:9px 12px; outline:none;"
+        onfocus="this.style.borderColor='#1dcfb4'" onblur="this.style.borderColor='#2a2a2a'"/>
+      <button onclick="removePosterField(this)" 
+        style="background:rgba(255,80,80,0.12); border:1px solid rgba(255,80,80,0.3); color:#ff6b6b; border-radius:6px; width:36px; height:36px; font-size:1.1rem; cursor:pointer; flex-shrink:0; transition:background 0.2s;"
+        onmouseover="this.style.background='rgba(255,80,80,0.25)'" onmouseout="this.style.background='rgba(255,80,80,0.12)'">×</button>
+    `;
+    list.appendChild(row);
+  };
+
+  window.removePosterField = async (btn) => {
+    btn.closest('div').remove();
+    await savePosters();
+    showToast('✓ Poster removed!');
   };
 
   window.savePosters = async () => {
-    const raw = document.getElementById('posterUrlsInput')?.value || '';
-    const urls = raw.split('\n').map(s => s.trim()).filter(Boolean);
+    const inputs = document.querySelectorAll('#posterUrlsList input');
+    const urls = Array.from(inputs).map(i => i.value.trim()).filter(Boolean);
     try {
       await set(ref(db, 'posters'), urls.length ? urls : null);
       showToast(urls.length ? '✓ ' + urls.length + ' poster(s) saved!' : '✓ Posters cleared!');
     } catch(e) { showToast('Error: ' + e.message, true); }
   };
-  
-  
+
   function loadPosters() {
     onValue(ref(db, 'posters'), snap => {
       const urls = snap.val();
-      if (!urls || !Array.isArray(urls)) return;
-      const textarea = document.getElementById('posterUrlsInput');
-      if (textarea) {
-        textarea.value = urls.join('\n');
-        previewPosters();
+      const list = document.getElementById('posterUrlsList');
+      if (!list) return;
+      list.innerHTML = '';
+      if (urls && Array.isArray(urls)) {
+        urls.forEach(url => addPosterField(url));
       }
     });
   }
