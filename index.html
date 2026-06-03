@@ -253,18 +253,13 @@
     padding: 40px 5% 60px;
     position: relative; overflow: hidden;
   }
-  .hero-bg {
-    position: absolute; inset: 0; z-index: 0;
-    background: radial-gradient(ellipse at 70% 50%, rgba(29,207,180,0.08) 0%, transparent 60%),
-                radial-gradient(ellipse at 20% 80%, rgba(200,240,62,0.06) 0%, transparent 50%);
-  }
-  .hero-grid {
-    position: absolute; inset: 0; z-index: 0;
-    background-image: linear-gradient(var(--border) 1px, transparent 1px),
-                      linear-gradient(90deg, var(--border) 1px, transparent 1px);
-    background-size: 60px 60px;
-    opacity: 0.3;
-  }
+.hero-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background:
+    linear-gradient(160deg, rgba(29,207,180,0.18) 0%, transparent 40%),
+    linear-gradient(340deg, rgba(200,240,62,0.12) 0%, transparent 45%),
+    #0d0d0d;
+}
 
   .hero-tag {
     display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;
@@ -516,8 +511,8 @@
 }
 .overlay-gallery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
 }
 .overlay-gallery-grid img {
   width: 100%;
@@ -531,6 +526,61 @@
 .overlay-gallery-grid img:hover {
   transform: scale(1.04);
   box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+/* ── IMAGE LIGHTBOX ── */
+#lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: #000;
+  overflow: hidden;
+  touch-action: none;
+}
+#lightbox.open {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#lightbox img {
+  max-width: 95vw;
+  max-height: 85vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  animation: lightboxIn 0.25s ease both;
+  display: block;
+  filter: none !important;
+}
+
+@keyframes lightboxIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+#lightbox-back {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(29,207,180,0.15);
+  border: 1px solid rgba(29,207,180,0.35);
+  color: var(--teal);
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 100px;
+  cursor: pointer;
+  z-index: 9999999;
+  transition: background 0.2s;
+}
+#lightbox-back:hover {
+  background: rgba(29,207,180,0.28);
 }
 .overlay-empty {
   display: flex;
@@ -1173,7 +1223,6 @@
 <!-- HERO -->
 <section id="home" class="hero">
   <div class="hero-bg"></div>
-  <div class="hero-grid"></div>
   <div style="font-family: 'Times New Roman',Times, serif; position: relative; z-index: 1;">
   <div class="hero-tag"></fonts>✦ SSF TANUR DIVISION ✦</div>
  
@@ -1294,18 +1343,26 @@
       </div>
     </div>
     <div class="overlay-gallery-grid">
-      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780224726/518274540_1114667767361165_3379938861119631740_n.jpg_tue8ze.jpg" alt="Photo 1">
-      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780226839/476440820_998489578978985_3991855350692116966_n.jpg_sdcbud.jpg" alt="Photo 2">
-      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780237392/477016910_998481898979753_2438800051593158063_n.jpg_hix5jq.jpg" alt="Photo 3">
-      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780239068/520706345_1119125543582054_4078300461339703080_n.jpg_su8pgn.jpg" alt="Photo 4">
-      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780238998/518251499_1119126633581945_4321090369395426778_n.jpg_m9wszr.jpg" alt="Photo 5">
-      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780238696/69318968_2562287683833372_7182526156162203648_n.jpg_qnovbj.jpg" alt="Photo 6">
-      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780238430/473548731_9239255242803216_67280837965960247_n.jpg_rzrjvn.jpg" alt="Photo 7">
-      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780227359/37238890_1933672756694871_2760327141282283520_n.jpg_kbibbj.jpg" alt="Photo 8">
-      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780236722/514394736_24131080759860753_2696283725905568611_n.jpg_fu2j8j.jpg" alt="Photo 9">
-      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780236950/499506238_3223478677853969_3354998353045643932_n.jpg_a1uzyk.jpg" alt="Photo 10">
-    </div>
+      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780224726/518274540_1114667767361165_3379938861119631740_n.jpg_tue8ze.jpg" alt="Photo 1" onclick="openLightbox(this.src)">
+      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780226839/476440820_998489578978985_3991855350692116966_n.jpg_sdcbud.jpg" alt="Photo 2" onclick="openLightbox(this.src)">
+      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780237392/477016910_998481898979753_2438800051593158063_n.jpg_hix5jq.jpg" alt="Photo 3" onclick="openLightbox(this.src)">
+      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780239068/520706345_1119125543582054_4078300461339703080_n.jpg_su8pgn.jpg" alt="Photo 4" onclick="openLightbox(this.src)">
+      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780238998/518251499_1119126633581945_4321090369395426778_n.jpg_m9wszr.jpg" alt="Photo 5" onclick="openLightbox(this.src)">
+      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780238696/69318968_2562287683833372_7182526156162203648_n.jpg_qnovbj.jpg" alt="Photo 6" onclick="openLightbox(this.src)">
+      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780238430/473548731_9239255242803216_67280837965960247_n.jpg_rzrjvn.jpg" alt="Photo 7" onclick="openLightbox(this.src)">
+      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780227359/37238890_1933672756694871_2760327141282283520_n.jpg_kbibbj.jpg" alt="Photo 8" onclick="openLightbox(this.src)">
+      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780236722/514394736_24131080759860753_2696283725905568611_n.jpg_fu2j8j.jpg" alt="Photo 9" onclick="openLightbox(this.src)">
+      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780236950/499506238_3223478677853969_3354998353045643932_n.jpg_a1uzyk.jpg" alt="Photo 10" onclick="openLightbox(this.src)">
+</div>
   </div>
+</div>
+
+<!-- LIGHTBOX — outside all overlays -->
+<div id="lightbox" onclick="closeLightbox()">
+  <button id="lightbox-back" onclick="closeLightbox()">
+    <i class="fa-solid fa-arrow-left"></i> Back
+  </button>
+  <img id="lightbox-img" src="" alt="">
 </div>
 
 <!-- OVERLAY: POSTER -->
@@ -2111,10 +2168,7 @@ if (!track || !dotsWrap) return;
   }
 
   function triggerAnimations() {
-    hasAnimated = true;
-    
-    // 1. കൺഫെറ്റി വീഴാൻ
-    if (typeof launchConfetti === 'function') launchConfetti();
+  hasAnimated = true;
     
     // 2. ബാർ നീങ്ങാൻ
     setTimeout(() => {
@@ -2216,6 +2270,7 @@ function openOverlay(id) {
     triggerConfetti();
   }
 }
+
 function closeOverlay(id) {
   document.getElementById(id).classList.remove('active');
   document.body.style.overflow = '';
@@ -2256,14 +2311,35 @@ function triggerConfetti() {
     }, delay);
   }
 
-  // 5 waves of confetti!
-  burst(30, 0);
-  burst(40, 400);
-  burst(45, 800);
-  burst(40, 1300);
-  burst(30, 1800);
+  // 3 waves of confetti!
+  burst(20, 0);
+  burst(30, 200);
+  burst(40, 500);
+  burst(70, 800);
+  burst(90, 1200);
+  
 }
 
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.body.style.position = 'fixed';
+  document.body.style.width = '100%';
+  const inner = document.querySelector('#overlay-gallery .overlay-inner');
+  if (inner) inner.style.filter = 'blur(6px)';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.getElementById('lightbox-img').src = '';
+  document.body.style.overflow = '';
+  document.body.style.position = '';
+  document.body.style.width = '';
+  const inner = document.querySelector('#overlay-gallery .overlay-inner');
+  if (inner) inner.style.filter = 'none';
+}
+
+ 
 </script>
 </body>
 </html>
