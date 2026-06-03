@@ -87,7 +87,9 @@
     buildWinnersTab();
     buildParticipantsTab();
     switchTab('tab-scores');
+    buildPostersTab();
     loadAll();
+    loadPosters();
   }
 
   // ── RENDER SCORES SORTED HIGH→LOW ──
@@ -419,6 +421,80 @@
       if (e.key === 'Enter') window.doLogin();
     });
   });
+  
+  
+  // ── BUILD POSTERS TAB ──
+  function buildPostersTab() {
+    const c = document.getElementById('postersTabContent');
+    c.innerHTML = `
+      <div class="info-box">
+        Paste Cloudinary image URLs below — <strong>one URL per line</strong>. 
+        Each poster will appear with Download and Share buttons on the main site.
+      </div>
+      <div class="meta-card">
+        <div class="meta-label">Poster URLs (one per line)</div>
+        <textarea 
+          id="posterUrlsInput" 
+          class="part-textarea" 
+          rows="12" 
+          placeholder="https://res.cloudinary.com/dekucljsf/image/upload/...&#10;https://res.cloudinary.com/dekucljsf/image/upload/...&#10;https://res.cloudinary.com/dekucljsf/image/upload/..."
+          style="width:100%; margin-top:12px; font-size:0.85rem; font-family:'Space Mono',monospace;"
+        ></textarea>
+      </div>
+      <div class="meta-card" style="margin-top:16px;">
+        <div class="meta-label">Preview (${0} posters)</div>
+        <div id="posterPreviewGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; margin-top:12px;"></div>
+      </div>
+      <div class="save-all-wrap" style="margin-top:24px; gap:12px; display:flex; justify-content:flex-end;">
+        <button class="save-btn" onclick="previewPosters()">👁️ Preview</button>
+        <button class="btn-primary" onclick="savePosters()">💾 Save Posters</button>
+      </div>
+    `;
+
+    // Live preview on input
+    document.getElementById('posterUrlsInput').addEventListener('input', previewPosters);
+  }
+
+  window.previewPosters = () => {
+    const raw = document.getElementById('posterUrlsInput')?.value || '';
+    const urls = raw.split('\n').map(s => s.trim()).filter(Boolean);
+    const grid = document.getElementById('posterPreviewGrid');
+    const label = grid?.previousElementSibling;
+    if (label) label.textContent = `Preview (${urls.length} poster${urls.length !== 1 ? 's' : ''})`;
+    if (!grid) return;
+    grid.innerHTML = urls.map((url, i) => `
+      <div style="border-radius:8px; overflow:hidden; border:1px solid #2a2a2a; background:#161616;">
+        <img src="${url}" alt="Poster ${i+1}" 
+          style="width:100%; aspect-ratio:1; object-fit:cover; display:block;"
+          onerror="this.style.background='#222'; this.style.minHeight='100px';">
+      </div>
+    `).join('');
+  };
+
+  window.savePosters = async () => {
+    const raw = document.getElementById('posterUrlsInput')?.value || '';
+    const urls = raw.split('\n').map(s => s.trim()).filter(Boolean);
+    if (!urls.length) { showToast('No URLs to save!', true); return; }
+    try {
+      await set(ref(db, 'posters'), urls);
+      showToast('✓ ' + urls.length + ' poster(s) saved!');
+    } catch(e) { showToast('Error: ' + e.message, true); }
+  };
+
+  function loadPosters() {
+    onValue(ref(db, 'posters'), snap => {
+      const urls = snap.val();
+      if (!urls || !Array.isArray(urls)) return;
+      const textarea = document.getElementById('posterUrlsInput');
+      if (textarea) {
+        textarea.value = urls.join('\n');
+        previewPosters();
+      }
+    });
+  }
+  
+  
+  
 </script>
 
 <style>
@@ -659,6 +735,7 @@ body { background: var(--dark); color: var(--text); font-family: 'DM Sans', sans
       <button class="main-tab-btn" id="tab-resulttext-btn" onclick="switchTab('tab-resulttext')">📝 Result Text</button>
       <button class="main-tab-btn" id="tab-winners-btn" onclick="switchTab('tab-winners')">🥇 Winners</button>
       <button class="main-tab-btn" id="tab-participants-btn" onclick="switchTab('tab-participants')">👥 Participants</button>
+<button class="main-tab-btn" id="tab-posters-btn" onclick="switchTab('tab-posters')">🖼️ Posters</button>
     </div>
 
     <!-- SCORES PANEL -->
@@ -680,6 +757,11 @@ body { background: var(--dark); color: var(--text); font-family: 'DM Sans', sans
     <!-- PARTICIPANTS PANEL -->
     <div class="main-tab-panel" id="tab-participants-panel">
       <div id="participantsTabContent"></div>
+    </div>
+
+    <!-- POSTERS PANEL -->
+    <div class="main-tab-panel" id="tab-posters-panel">
+      <div id="postersTabContent"></div>
     </div>
 
   </div>
