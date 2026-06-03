@@ -528,6 +528,52 @@
   box-shadow: 0 8px 24px rgba(0,0,0,0.4);
 }
 
+.poster-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+}
+.poster-card img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  cursor: pointer;
+}
+.poster-actions {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+}
+.poster-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 4px;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+}
+.download-btn {
+  background: rgba(29,207,180,0.15);
+  color: #1dcfb4;
+  border: 1px solid rgba(29,207,180,0.3);
+}
+.whatsapp-btn {
+  background: rgba(37,211,102,0.15);
+  color: #25d366;
+  border: 1px solid rgba(37,211,102,0.3);
+}
+
+
 /* ── IMAGE LIGHTBOX ── */
 #lightbox {
   display: none;
@@ -1036,15 +1082,16 @@
   /* ─── FOOTER ─── */
   footer {
     background: var(--dark); border-top: 1px solid var(--border);
-    padding: 40px 5%;
+    padding: 10px 3%;
     display: flex; justify-content: space-between; align-items: center;
     flex-wrap: wrap; gap: 20px;
   }
-  .footer-logo { font-family: 'poppins', sans-serif; font-weight: 800; font-size: 1.2rem; }
+  .footer-logo { font-family: 'poppins',
+   sans-serif; font-weight: 800; font-size: 1rem; margin-top: 23px; }
   .footer-links { display: flex; gap: 20px; }
   .footer-links a { color: var(--muted); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
   .footer-links a:hover { color: var(--teal); }
-  .footer-copy { color: var(--muted); font-size: 0.8rem; font-family: 'Space Mono', monospace; }
+  .footer-copy { color: var(--muted); font-size: 0.7rem; font-family: 'Space Mono', monospace; }
 
   /* ─── ANIMATIONS ─── */
   @keyframes fadeUp {
@@ -1374,16 +1421,16 @@
       </button>
       <div class="overlay-title-wrap">
         <h2 class="overlay-title">Posters</h2>
-        <p class="overlay-sub">Official posters of Sahityotsav'26 — coming soon.</p>
+        <p class="overlay-sub">Official posters of Sahityotsav'26</p>
       </div>
     </div>
-    <div class="overlay-empty">
-      <i class="fa-solid fa-image" style="font-size:3rem; color:var(--teal); opacity:0.4;"></i>
-      <p style="color:var(--muted); margin-top:16px;">Posters will be uploaded soon. Stay tuned!</p>
+    <div class="overlay-gallery-grid" id="posterGrid">
+      <div style="text-align:center; color:#666; padding:40px; grid-column:1/-1;">
+        Loading posters...
+      </div>
     </div>
   </div>
 </div>
-
 <!-- OVERLAY: CONTACT / ABOUT -->
 <div class="overlay-page" id="overlay-contact">
   <div class="overlay-inner">
@@ -1397,13 +1444,13 @@
       </div>
     </div>
     <div class="contact-links" style="display:flex; flex-direction:column; gap:16px; margin-top:20px;">
-      <a href="mailto:ssfozhursector@gmail.com" class="contact-link">
+      <a href="mailto:ssftanurdivision@mail.com" class="contact-link">
         <span class="contact-icon">✉</span>
-        <span>ssfozhursector@gmail.com</span>
+        <span>ssftanurdivision@mail.com</span>
       </a>
-      <a href="tel:+919207343033" class="contact-link">
+      <a href="tel:+91 90721 32112" class="contact-link">
         <span class="contact-icon">📞</span>
-        <span>+91 9207343033</span>
+        <span>+91 90721 32112</span>
       </a>
     </div>
   </div>
@@ -1414,8 +1461,7 @@
   <div class="footer-logo">Sahityotsav'26</div>
   <div class="footer-links">
     <a href="#home">Home</a>
-    <a href="#venue-map">Venue</a>
-    <a onclick="openOverlay('overlay-contact')" style="cursor:pointer;">Contact</a>
+    <a onclick="openOverlay('overlay-contact')" style="cursor:pointer;">About</a>
   </div>
   <div class="footer-copy">© 2026 Tanur Division Sahityotsav. All rights reserved.</div>
 </footer>
@@ -2228,6 +2274,40 @@ if (!track || !dotsWrap) return;
   const scoreboardSection = document.getElementById('overlay-scoreboard');
 if (scoreboardSection) observer.observe(scoreboardSection);
 
+
+
+// ── LOAD POSTERS FROM FIREBASE ──
+  const postersRef = ref(db, 'posters');
+  onValue(postersRef, (snap) => {
+    const urls = snap.val();
+    const grid = document.getElementById('posterGrid');
+    if (!grid) return;
+    if (!urls || !urls.length) {
+      grid.innerHTML = '<div style="text-align:center;color:#666;padding:40px;grid-column:1/-1;">No posters yet.</div>';
+      return;
+    }
+    grid.innerHTML = urls.map((url, i) => `
+      <div class="poster-card">
+        <img src="${url}" alt="Poster ${i+1}" onclick="openLightbox(this.src)">
+        <div class="poster-actions">
+          <button onclick="downloadImage('${url}','sahityotsav-poster-${i+1}.jpg')" class="poster-btn download-btn">
+            <i class="fa-solid fa-download"></i> Save
+          </button>
+          <button onclick="shareImage('${url}','sahityotsav-poster-${i+1}.jpg')" class="poster-btn whatsapp-btn">
+            <i class="fa-brands fa-whatsapp"></i> Share
+          </button>
+        </div>
+      </div>
+    `).join('');
+  });
+
+
+
+
+
+
+
+
   // ── LOAD WINNERS FROM FIREBASE ──
   // ── LOAD WINNERS FROM FIREBASE ──
   const winnersRef = ref(db, 'winners');
@@ -2338,6 +2418,42 @@ function closeLightbox() {
   const inner = document.querySelector('#overlay-gallery .overlay-inner');
   if (inner) inner.style.filter = 'none';
 }
+
+async function downloadImage(url, filename) {
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename || 'sahityotsav-poster.jpg';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+  } catch(e) {
+    window.open(url, '_blank');
+  }
+}
+
+async function shareImage(url, filename) {
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const file = new File([blob], filename || 'sahityotsav-poster.jpg', { type: 'image/jpeg' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: 'Sahityotsav\'26 Poster' });
+    } else {
+      await navigator.share({ url: url, title: 'Sahityotsav\'26 Poster' });
+    }
+  } catch(e) {
+    window.open('https://wa.me/?text=' + encodeURIComponent(url), '_blank');
+  }
+}
+
+
+
+</script>
+
 
  
 </script>
