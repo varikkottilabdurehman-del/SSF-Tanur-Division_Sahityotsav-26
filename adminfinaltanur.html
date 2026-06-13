@@ -135,7 +135,7 @@
       // result count text
       const meta = d['_meta'] || {};
       if (document.getElementById('rcText')) document.getElementById('rcText').value = meta.rcText ?? 'After 0 Results';
-      if (document.getElementById('resultNo') && meta.resultNo != null) document.getElementById('resultNo').value = meta.resultNo;
+      
     });
 
     onValue(ref(db, 'winners'), snap => {
@@ -152,8 +152,7 @@
             if (ne) ne.value = p.name || '';
             if (se) se.value = p.sector || '';
           });
-          const rnoEl = document.getElementById('w_rno_' + key);
-          if (rnoEl && entry.resultNo != null) rnoEl.value = entry.resultNo;
+          
         });
       });
     });
@@ -278,9 +277,7 @@
           <div class="prog-card-edit">
             <div class="prog-name-label">${prog}</div>
             <div class="place-row">
-              <span class="place-label">🔢 Result No</span>
-              <input type="number" class="prog-winner-inp" id="w_rno_${key}" placeholder="000" min="0" style="width:100px;"/>
-            </div>
+              
             ${placesHtml}
           </div>
         `;
@@ -310,8 +307,7 @@
         const sector = document.getElementById('w_sect_' + key + '_' + place)?.value || '';
         entry['p' + place] = { name, sector };
       });
-      const rno = document.getElementById('w_rno_' + key)?.value;
-      if (rno !== '' && rno != null) entry.resultNo = parseInt(rno) || 0;
+      
       updates[safeKey(prog)] = entry;
     }
     try {
@@ -497,17 +493,7 @@
         <!-- LEFT: CONTROLS -->
         <div style="display:flex;flex-direction:column;gap:16px;">
 
-          <div class="meta-card">
-            <div class="meta-label">🔢 Result Number</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
-              <div><label class="field-label">X Position</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('progNum_x',-1)">−</button><input type="range" min="0" max="1" step="0.01" id="ep_progNum_x" oninput="updateEPLabel('progNum_x');drawPreview()"><button class="nudge-btn" onclick="nudge('progNum_x',1)">+</button></div><span id="ep_progNum_x_val">0.30</span></div>
-              <div><label class="field-label">Y Position</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('progNum_y',-1)">−</button><input type="range" min="0" max="1" step="0.01" id="ep_progNum_y" oninput="updateEPLabel('progNum_y');drawPreview()"><button class="nudge-btn" onclick="nudge('progNum_y',1)">+</button></div><span id="ep_progNum_y_val">0.20</span></div>
-              <div><label class="field-label">Size</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('progNum_size',-1)">−</button><input type="range" min="0.05" max="0.4" step="0.01" id="ep_progNum_size" oninput="updateEPLabel('progNum_size');drawPreview()"><button class="nudge-btn" onclick="nudge('progNum_size',1)">+</button></div><span id="ep_progNum_size_val">0.18</span></div>
-              <div><label class="field-label">Color</label><input type="color" id="ep_progNum_color" value="#1a1a2e" oninput="drawPreview()" style="width:100%;height:36px;border-radius:6px;border:1px solid #2a2a2a;background:none;cursor:pointer;"></div>
-              <div style="grid-column:1/-1"><label class="field-label">Rotation (°)</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('progNum_rot',-1)">−</button><input type="range" min="-180" max="180" step="1" id="ep_progNum_rot" oninput="updateEPLabel('progNum_rot');drawPreview()"><button class="nudge-btn" onclick="nudge('progNum_rot',1)">+</button></div><span id="ep_progNum_rot_val">0</span></div>
-              ${fontRow('progNum')}
-            </div>
-          </div>
+          
 
           <div class="meta-card">
             <div class="meta-label">🏷️ Category Label</div>
