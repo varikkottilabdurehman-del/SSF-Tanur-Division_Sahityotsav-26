@@ -1235,17 +1235,6 @@ a.nav-box-btn, a.nav-box-btn:hover, a.nav-box-btn:visited {
 
 
 </style>
-
-<script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "x60j9y7u79");
-</script>
-
-
-
 </head>
 <body>
 
@@ -1500,15 +1489,15 @@ let eposterDownloadName = 'eposter';
 //  EASY EDIT ZONE — change numbers to adjust layout
 // ════════════════════════════════════════════════════
 const EP = {
-
-  // ── Programme number (big "01" on left) ──
-  progNum: {
-    x: .3,          // left–right position (0 = left edge, 1 = right edge)
-    y: 0.2,          // up–down position (0 = top, 1 = bottom)
-    size: 0.18,       // font size (fraction of poster width)
-    color: '#1a1a2e', // text colour
-    font: 'Arial',    // font family
+progNum: {
+    x: 0.3,
+    y: 0.2,
+    size: 0.18,
+    color: '#1a1a2e',
+    font: 'Arial',
+    rot: 0,
   },
+
 
   // ── Category label (e.g. "JUNIOR") ──
   category: {
@@ -1549,7 +1538,7 @@ const EP = {
 //  END EASY EDIT ZONE
 // ════════════════════════════════════════════════════
 
-window.openEPoster = function(category, programme, progNumber) {
+window.openEPoster = function(category, programme) {
   const safeProgKey = programme.replace(/[^a-zA-Z0-9]/g, '_');
   const winners = window.winnersData[category] && window.winnersData[category][safeProgKey];
   if (!winners || !winners.length) { alert('No winners data found.'); return; }
@@ -1633,11 +1622,7 @@ console.log('Loading epSettings for:', catKey);
         ctx.restore();
       }
 
-      ctx.fillStyle = EP.progNum.color;
-      ctx.font = `bold ${Math.round(W * EP.progNum.size)}px '${EP.progNum.font}', sans-serif`;
-      ctx.textAlign = 'left';
-      drawRot(String(progNumber).padStart(2,'0'), W * EP.progNum.x, H * EP.progNum.y, EP.progNum.rot);
-
+      
       ctx.font = `${Math.round(W * EP.category.size)}px '${EP.category.font}', sans-serif`;
       ctx.fillStyle = EP.category.color;
       ctx.textAlign = 'left';
@@ -1968,14 +1953,8 @@ function showFpParticipants() {
   `).join('');
 
   // ── Programme number (index in full programme list) ──
-  const safeKey2 = prog.replace(/[^a-zA-Z0-9]/g, '_');
-  const progIndex = (window.winnersResultNo && window.winnersResultNo[cat] && window.winnersResultNo[cat][safeKey2])
-    ? window.winnersResultNo[cat][safeKey2]
-    : 1;
-
-  const resultNo = window.winnersResultNo && window.winnersResultNo[cat] && window.winnersResultNo[cat][safeProgKey]
-    ? String(window.winnersResultNo[cat][safeProgKey]).padStart(3,'0')
-    : null;
+  
+    
 
   output.innerHTML = `
     <div style="margin-bottom:24px">
@@ -1983,9 +1962,9 @@ function showFpParticipants() {
       <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.4rem;margin:6px 0 4px">${prog}</h3>
       <p style="color:var(--muted);font-size:0.85rem">Results Announced</p>
     </div>
-    ${resultNo ? `<div class="score-count" style="margin-bottom:16px;display:inline-block;">Result No : ${resultNo}</div>` : ''}
+    
     <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px">${cardsHtml}</div>
-    <button onclick="openEPoster('${cat.replace(/'/g,"\\'")}','${prog.replace(/'/g,"\\'")}',${progIndex})"
+    <button onclick="openEPoster('${cat.replace(/'/g,"\\'")}','${prog.replace(/'/g,"\\'")}')"
       style="width:100%;background:rgba(29,207,180,0.1);border:1px solid rgba(29,207,180,0.35);
       color:#1dcfb4;font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;
       padding:14px;border-radius:12px;cursor:pointer;display:flex;align-items:center;
@@ -2296,10 +2275,8 @@ if (scoreboardSection) observer.observe(scoreboardSection);
   onValue(winnersRef, (snap) => {
     const d = snap.val() || {};
     window.winnersData = {};
-    window.winnersResultNo = {};
     Object.keys(d).forEach(cat => {
       window.winnersData[cat] = {};
-      window.winnersResultNo[cat] = {};
       Object.keys(d[cat]).forEach(progKey => {
         const entry = d[cat][progKey];
         const arr = [];
@@ -2308,7 +2285,6 @@ if (scoreboardSection) observer.observe(scoreboardSection);
           if (p.name) arr.push({ name: p.name, sector: p.sector || '' });
         });
         if (arr.length) window.winnersData[cat][progKey] = arr;
-        if (entry.resultNo != null) window.winnersResultNo[cat][progKey] = entry.resultNo;
       });
     });
   });
