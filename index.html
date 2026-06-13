@@ -11,7 +11,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tanur Division Sahityotsav'26</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=Poppins:wght@500;600&family=Montserrat:wght@400;700&family=Playfair+Display:wght@400;700&family=Roboto:wght@400;700&family=Lato:wght@400;700&family=Abril+Fatface&family=Raleway:wght@400;700&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --lime: #c8f03e;
@@ -43,7 +43,7 @@
  body {
     background: var(--dark);
     color: var(--text);
-    font-family: 'DM Sans', 'Roboto'
+    font-family: 'DM Sans', 'Roboto';
     overflow-x: hidden;
   }
 
@@ -416,6 +416,13 @@
 .nav-box-btn:nth-child(3) .nav-box-icon i { color: #4d9fff; } /* gallery - blue */
 .nav-box-btn:nth-child(4) .nav-box-icon i { color: #f5a623; } /* poster - gold */
 
+.nav-box-btn .nav-box-label {
+  text-decoration: none !important;
+}
+a.nav-box-btn, a.nav-box-btn:hover, a.nav-box-btn:visited {
+  text-decoration: none !important;
+  color: #e8e8e8;
+}
 
 /* ── CONFETTI ── */
 .confetti-wrap {
@@ -1082,7 +1089,7 @@
   /* ─── FOOTER ─── */
   footer {
     background: var(--dark); border-top: 1px solid var(--border);
-    padding: 10px 3%;
+    padding: 10px 3%;        
     display: flex; justify-content: space-between; align-items: center;
     flex-wrap: wrap; gap: 20px;
   }
@@ -1091,7 +1098,7 @@
   .footer-links { display: flex; gap: 20px; }
   .footer-links a { color: var(--muted); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
   .footer-links a:hover { color: var(--teal); }
-  .footer-copy { color: var(--muted); font-size: 0.8rem; font-family: 'Space Mono', monospace; margin-bottom: 40px; }
+  .footer-copy { color: var(--muted); font-size: 0.4rum;  font-family: 'Space Mono', monospace; margin-bottom: 40px; }
 
   /* ─── ANIMATIONS ─── */
   @keyframes fadeUp {
@@ -1222,16 +1229,22 @@
     .stats-strip { gap: 24px; }
   }
 
+.overlay-page.modal-open {
+  overflow: hidden !important;
+}
+
 
 </style>
 
-<script type="text/javascript">
+script type="text/javascript">
     (function(c,l,a,r,i,t,y){
         c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
         t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
         y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
     })(window, document, "clarity", "script", "x60j9y7u79");
 </script>
+
+
 
 </head>
 <body>
@@ -1261,11 +1274,11 @@
     <span class="sidebar-icon gallery"><i class="fa-solid fa-images"></i></span>
     Gallery
   </a>
-  <a onclick="closeSidebar(); openOverlay('overlay-results');" class="sidebar-nav-item" style="cursor:pointer;">
+  <a onclick="closeSidebar(); closeOverlay('overlay-contact'); openOverlay('overlay-results');" class="sidebar-nav-item" style="cursor:pointer;">
     <span class="sidebar-icon posters"><i class="fa-solid fa-medal"></i></span>
     Results
   </a>
-  <a onclick="closeSidebar(); openOverlay('overlay-contact')" class="sidebar-nav-item" style="cursor:pointer;">
+  <a onclick="closeSidebar(); openOverlay('overlay-contact');" class="sidebar-nav-item" style="cursor:pointer;">
     <span class="sidebar-icon about"><i class="fa-solid fa-circle-info"></i></span>
     About
   </a>
@@ -1278,13 +1291,13 @@
   <div style="font-family: 'Times New Roman',Times, serif; position: relative; z-index: 1;">
   <div class="hero-tag"></fonts>✦ SSF TANUR DIVISION ✦</div>
  
-  <div style="position:relative; z-index:1; margin-bottom:10px; margin-top:10px; text-align:center;">
+  <div style="position:relative; z-index:1; margin-bottom:18px; margin-top:15px; text-align:center;">
   <img 
-    src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780459805/33rd_Edition_20260603_093908_0000_vezqdo.png"
+    src="https://iili.io/CCnYjYN.png"
     alt="Sahityotsav"
     style="
       width: 90%;
-      max-width: 320px;
+      max-width: 800px;
       height: auto;
       display: block;
       margin: 0 auto;
@@ -1292,7 +1305,7 @@
     "
   >
 </div>
-
+ 
   <div class="stats-strip">
     <div class="stat"><div class="stat-num" data-target="2" data-suffix="">02</div><div class="stat-label">DAYS</div></div>
     <div class="stat"><div class="stat-num" data-target="7" data-suffix="">07</div><div class="stat-label">SECTORS</div></div>
@@ -1306,7 +1319,7 @@
   <div class="nav-box-icon"><i class="fa-solid fa-trophy"></i></div>
   <span class="nav-box-label">Point Status</span>
 </a>
-<a onclick="openOverlay('overlay-results')" class="nav-box-btn active" style="cursor:pointer;">
+<a onclick="openOverlay('overlay-results')" class="nav-box-btn" style="cursor:pointer;">
   <div class="nav-box-icon"><i class="fa-solid fa-medal"></i></div>
   <span class="nav-box-label">Results</span>
 </a>
@@ -1322,8 +1335,19 @@
  
 </section>
 
+<footer>
+  <div class="footer-logo">Sahityotsav'26</div>
+  <div class="footer-links">
+    <a href="#home">Home</a>
+    <a onclick="openOverlay('overlay-contact')" style="cursor:pointer;">About</a>
+  </div>
+  <div class="footer-copy">© 2026 Tanur Division Sahityotsav. All rights reserved.</div>
+</footer>
+
 
 <div class="overlay-page" id="overlay-scoreboard">
+
+
   <div class="confetti-wrap" id="confetti"></div>
   <div class="overlay-inner">
     <div class="overlay-header">
@@ -1351,18 +1375,19 @@
         <p class="overlay-sub">Select a Category and Programme to view Result and Winners.</p>
       </div>
     </div>
+
     <div class="result-finder">
       <h3>Find Winners</h3>
       <div class="finder-row">
         <select class="finder-select" id="fpCatSelect" onchange="updateFpProgrammes()">
           <option value="">Select Your Category</option>
-          <option value="LOWER PRIMARY">LOWER PRIMARY</option>
-          <option value="UPPER PRIMARY">UPPER PRIMARY</option>
-          <option value="HIGH SCHOOL">HIGH SCHOOL</option>
-          <option value="HIGHER SECONDARY">HIGHER SECONDARY</option>
-          <option value="JUNIOR">JUNIOR</option>
-          <option value="SENIOR">SENIOR</option>
-          <option value="GENERAL">GENERAL</option>
+          <option value="LOWER PRIMARY">LOWER PRIMARY [ LP ]</option>
+          <option value="UPPER PRIMARY">UPPER PRIMARY [ UP ]</option>
+          <option value="HIGH SCHOOL">HIGH SCHOOL [ HS ]</option>
+          <option value="HIGHER SECONDARY">HIGHER SECONDARY [ HSS ]</option>
+          <option value="JUNIOR">JUNIOR [ JR ]</option>
+          <option value="SENIOR">SENIOR [ SR ]</option>
+          <option value="GENERAL">GENERAL [ GEN ]</option>
           <option value="CAMPUS">CAMPUS</option>
         </select>
         <select class="finder-select" id="fpProgSelect" onchange="showFpParticipants()" disabled>
@@ -1388,16 +1413,16 @@
       </div>
     </div>
     <div class="overlay-gallery-grid">
-      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780224726/518274540_1114667767361165_3379938861119631740_n.jpg_tue8ze.jpg" alt="Photo 1" onclick="openLightbox(this.src)">
-      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780226839/476440820_998489578978985_3991855350692116966_n.jpg_sdcbud.jpg" alt="Photo 2" onclick="openLightbox(this.src)">
-      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780237392/477016910_998481898979753_2438800051593158063_n.jpg_hix5jq.jpg" alt="Photo 3" onclick="openLightbox(this.src)">
-      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780239068/520706345_1119125543582054_4078300461339703080_n.jpg_su8pgn.jpg" alt="Photo 4" onclick="openLightbox(this.src)">
-      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780238998/518251499_1119126633581945_4321090369395426778_n.jpg_m9wszr.jpg" alt="Photo 5" onclick="openLightbox(this.src)">
-      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780238696/69318968_2562287683833372_7182526156162203648_n.jpg_qnovbj.jpg" alt="Photo 6" onclick="openLightbox(this.src)">
-      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780238430/473548731_9239255242803216_67280837965960247_n.jpg_rzrjvn.jpg" alt="Photo 7" onclick="openLightbox(this.src)">
-      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780227359/37238890_1933672756694871_2760327141282283520_n.jpg_kbibbj.jpg" alt="Photo 8" onclick="openLightbox(this.src)">
-      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780236722/514394736_24131080759860753_2696283725905568611_n.jpg_fu2j8j.jpg" alt="Photo 9" onclick="openLightbox(this.src)">
-      <img src="https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780236950/499506238_3223478677853969_3354998353045643932_n.jpg_a1uzyk.jpg" alt="Photo 10" onclick="openLightbox(this.src)">
+      <img loading="eager" src="https://iili.io/CfasASj.jpg" alt="Photo 1" onclick="openLightbox(this.src)">
+      <img loading="eager" src="https://iili.io/Cfas0V1.jpg" alt="Photo 2" onclick="openLightbox(this.src)">
+      <img loading="eager" src="https://iili.io/CfasSls.jpg" alt="Photo 3" onclick="openLightbox(this.src)">
+      <img loading="eager" src="https://iili.io/CfaLthN.jpg" alt="Photo 4" onclick="openLightbox(this.src)">
+      <img loading="eager" src="https://iili.io/CfaQKj2.jpg" alt="Photo 5" onclick="openLightbox(this.src)">
+      <img loading="eager" src="https://iili.io/CfaQN6X.jpg" alt="Photo 6" onclick="openLightbox(this.src)">
+      <img loading="eager" src="https://iili.io/CfaQ6nS.jpg" alt="Photo 7" onclick="openLightbox(this.src)">
+      <img loading="eager" src="https://iili.io/CfaZASs.jpg" alt="Photo 8" onclick="openLightbox(this.src)">
+      <img loading="eager" src="https://iili.io/CfaZ8f1.jpg" alt="Photo 9" onclick="openLightbox(this.src)">
+      <img loading="eager" src="https://iili.io/CfatHb4.jpg" alt="Photo 10" onclick="openLightbox(this.src)">
 </div>
   </div>
 </div>
@@ -1451,14 +1476,212 @@
   </div>
 </div>
 
-<footer>
-  <div class="footer-logo">Sahityotsav'26</div>
-  <div class="footer-links">
-    <a href="#home">Home</a>
-    <a onclick="openOverlay('overlay-contact')" style="cursor:pointer;">About</a>
+
+<!-- ══════════ E-POSTER MODAL ══════════ -->
+<div id="eposter-modal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.88);backdrop-filter:blur(6px);overflow-y:auto;padding:20px;align-items:flex-start;justify-content:center;" onclick="event.stopPropagation()">
+  <div style="max-width:700px;margin:0 auto;width:100%;">
+    <button onclick="window.closeEPoster()" style="margin-bottom:16px;background:rgba(29,207,180,0.1);border:1px solid rgba(29,207,180,0.3);color:#1dcfb4;font-family:'Poppins',sans-serif;font-size:0.85rem;font-weight:600;padding:8px 18px;border-radius:100px;cursor:pointer;display:flex;align-items:center;gap:8px;">
+      <i class="fa-solid fa-arrow-left"></i> Back
+    </button>
+    <p style="color:#888;font-size:0.78rem;font-family:'Poppins',sans-serif;margin-bottom:10px;letter-spacing:0.08em;">E-POSTER PREVIEW</p>
+    <canvas id="eposter-canvas" style="width:100%;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,0.6);display:block;"></canvas>
+    <button onclick="window.downloadEPoster()" style="margin-top:16px;width:100%;background:rgba(29,207,180,0.12);border:1px solid rgba(29,207,180,0.35);color:#1dcfb4;font-weight:700;font-family:'Poppins',sans-serif;font-size:1rem;padding:14px;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">
+      <i class="fa-solid fa-download"></i> DOWNLOAD POSTER
+    </button>
   </div>
-  <div class="footer-copy">© 2026 Tanur Division Sahityotsav. All rights reserved.</div>
-</footer>
+</div>
+
+<script>
+// ══════════ E-POSTER GENERATOR ══════════
+
+let eposterDownloadName = 'eposter';
+
+// ════════════════════════════════════════════════════
+//  EASY EDIT ZONE — change numbers to adjust layout
+// ════════════════════════════════════════════════════
+const EP = {
+
+  // ── Programme number (big "01" on left) ──
+  progNum: {
+    x: .3,          // left–right position (0 = left edge, 1 = right edge)
+    y: 0.2,          // up–down position (0 = top, 1 = bottom)
+    size: 0.18,       // font size (fraction of poster width)
+    color: '#1a1a2e', // text colour
+    font: 'Arial',    // font family
+  },
+
+  // ── Category label (e.g. "JUNIOR") ──
+  category: {
+    x: 0.30,          // left–right
+    y: 0.22,          // up–down
+    size: 0.038,      // font size
+    color: '#444444', // text colour
+    font: 'Arial',
+    letterSpacing: 0, // extra letter spacing in px (0 = normal)
+  },
+
+  // ── Programme name (e.g. "Literature Debate") ──
+  programme: {
+    x: 0.30,          // left–right
+    y: 0.28,          // up–down
+    size: 0.052,      // font size
+    color: '#1a1a2e',
+    font: 'Arial',
+  },
+
+  // ── Winners block ──
+  winners: {
+    nameX: 0.12,      // name left–right start position
+    sectorX: 0.12,    // sector/unit label left–right start position
+    firstY: 0.44,     // up–down position of 1st winner name
+    gap: 0.115,       // up–down gap between each winner
+    nameSize: 0.048,  // name font size
+    nameColor: '#1a1a2e',
+    nameFont: 'Arial',
+    sectorSize: 0.032, // sector/unit font size
+    sectorColor: '#666666',
+    sectorFont: 'Arial',
+    sectorOffsetY: 0.052, // how far below the name the sector text sits
+  },
+
+};
+// ════════════════════════════════════════════════════
+//  END EASY EDIT ZONE
+// ════════════════════════════════════════════════════
+
+window.openEPoster = function(category, programme, progNumber) {
+  const safeProgKey = programme.replace(/[^a-zA-Z0-9]/g, '_');
+  const winners = window.winnersData[category] && window.winnersData[category][safeProgKey];
+  if (!winners || !winners.length) { alert('No winners data found.'); return; }
+
+  eposterDownloadName = programme;
+  const eModal = document.getElementById('eposter-modal');
+  document.body.appendChild(eModal);
+  eModal.style.display = 'flex';
+  eModal.scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+
+  (async () => {
+    // Reset EP to defaults first
+    EP.progNum.x=0.3; EP.progNum.y=0.2; EP.progNum.size=0.18;
+    EP.category.x=0.30; EP.category.y=0.22; EP.category.size=0.038;
+    EP.programme.x=0.30; EP.programme.y=0.28; EP.programme.size=0.052;
+    EP.winners.nameX=0.12; EP.winners.firstY=0.44; EP.winners.nameSize=0.048;
+    EP.winners.gap=0.115; EP.winners.sectorX=0.12; EP.winners.sectorOffsetY=0.052;
+    EP.winners.sectorSize=0.032;
+
+    const catKey = category.replace(/ /g,'_');
+console.log('Loading epSettings for:', catKey);
+    let templateURL = 'https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780805068/IMG-20260607-WA0004_hicze7.jpg';
+    try {
+      const epSnap = await window._get(window._ref(window._db, 'epSettings/' + catKey));
+      const fs = epSnap.val();
+      if (fs) {
+        if (fs.template_url) templateURL = fs.template_url;
+        if (fs.progNum_x != null) EP.progNum.x = parseFloat(fs.progNum_x);
+        if (fs.progNum_y != null) EP.progNum.y = parseFloat(fs.progNum_y);
+        if (fs.progNum_size != null) EP.progNum.size = parseFloat(fs.progNum_size);
+        if (fs.progNum_color != null) EP.progNum.color = fs.progNum_color;
+        if (fs.category_x != null) EP.category.x = parseFloat(fs.category_x);
+        if (fs.category_y != null) EP.category.y = parseFloat(fs.category_y);
+        if (fs.category_size != null) EP.category.size = parseFloat(fs.category_size);
+        if (fs.category_color != null) EP.category.color = fs.category_color;
+        if (fs.programme_x != null) EP.programme.x = parseFloat(fs.programme_x);
+        if (fs.programme_y != null) EP.programme.y = parseFloat(fs.programme_y);
+        if (fs.programme_size != null) EP.programme.size = parseFloat(fs.programme_size);
+        if (fs.programme_color != null) EP.programme.color = fs.programme_color;
+        if (fs.winners_nameX != null) EP.winners.nameX = parseFloat(fs.winners_nameX);
+        if (fs.winners_firstY != null) EP.winners.firstY = parseFloat(fs.winners_firstY);
+        if (fs.winners_nameSize != null) EP.winners.nameSize = parseFloat(fs.winners_nameSize);
+        if (fs.winners_gap != null) EP.winners.gap = parseFloat(fs.winners_gap);
+        if (fs.winners_nameColor != null) EP.winners.nameColor = fs.winners_nameColor;
+        if (fs.winners_sectorX != null) EP.winners.sectorX = parseFloat(fs.winners_sectorX);
+        if (fs.winners_sectorOffsetY != null) EP.winners.sectorOffsetY = parseFloat(fs.winners_sectorOffsetY);
+        if (fs.winners_sectorSize != null) EP.winners.sectorSize = parseFloat(fs.winners_sectorSize);
+        if (fs.winners_sectorColor != null) EP.winners.sectorColor = fs.winners_sectorColor;
+        if (fs.progNum_font != null) EP.progNum.font = fs.progNum_font;
+        if (fs.progNum_rot != null) EP.progNum.rot = parseFloat(fs.progNum_rot);
+        if (fs.category_font != null) EP.category.font = fs.category_font;
+        if (fs.category_rot != null) EP.category.rot = parseFloat(fs.category_rot);
+        if (fs.programme_font != null) EP.programme.font = fs.programme_font;
+        if (fs.programme_rot != null) EP.programme.rot = parseFloat(fs.programme_rot);
+        if (fs.winners_name_font != null) EP.winners.nameFont = fs.winners_name_font;
+        if (fs.winners_nameRot != null) EP.winners.nameRot = parseFloat(fs.winners_nameRot);
+        if (fs.winners_sector_font != null) EP.winners.sectorFont = fs.winners_sector_font;
+        if (fs.winners_sectorRot != null) EP.winners.sectorRot = parseFloat(fs.winners_sectorRot);
+      }
+    } catch(e) { alert('Firebase error: ' + e.message); }
+
+    img.onload = function() {
+      const canvas = document.getElementById('eposter-canvas');
+      const W = img.naturalWidth;
+      const H = img.naturalHeight;
+      canvas.width  = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, W, H);
+
+      function drawRot(text, x, y, rotDeg) {
+        const rad = ((rotDeg || 0) * Math.PI) / 180;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(rad);
+        ctx.fillText(text, 0, 0);
+        ctx.restore();
+      }
+
+      ctx.fillStyle = EP.progNum.color;
+      ctx.font = `bold ${Math.round(W * EP.progNum.size)}px '${EP.progNum.font}', sans-serif`;
+      ctx.textAlign = 'left';
+      drawRot(String(progNumber).padStart(2,'0'), W * EP.progNum.x, H * EP.progNum.y, EP.progNum.rot);
+
+      ctx.font = `${Math.round(W * EP.category.size)}px '${EP.category.font}', sans-serif`;
+      ctx.fillStyle = EP.category.color;
+      ctx.textAlign = 'left';
+      drawRot(category.toUpperCase(), W * EP.category.x, H * EP.category.y, EP.category.rot);
+
+      ctx.font = `bold ${Math.round(W * EP.programme.size)}px '${EP.programme.font}', sans-serif`;
+      ctx.fillStyle = EP.programme.color;
+      ctx.textAlign = 'left';
+      drawRot(programme, W * EP.programme.x, H * EP.programme.y, EP.programme.rot);
+
+      winners.forEach((w, i) => {
+        const y = H * EP.winners.firstY + (H * EP.winners.gap * i);
+        ctx.font = `bold ${Math.round(W * EP.winners.nameSize)}px '${EP.winners.nameFont}', sans-serif`;
+        ctx.fillStyle = EP.winners.nameColor;
+        ctx.textAlign = 'left';
+        drawRot(w.name, W * EP.winners.nameX, y, EP.winners.nameRot);
+        ctx.font = `${Math.round(W * EP.winners.sectorSize)}px '${EP.winners.sectorFont}', sans-serif`;
+        ctx.fillStyle = EP.winners.sectorColor;
+        drawRot(w.sector, W * EP.winners.sectorX, y + H * EP.winners.sectorOffsetY, EP.winners.sectorRot);
+      });
+    };
+    img.src = templateURL + '?t=' + Date.now();
+  })();
+  };
+window.closeEPoster = function() {
+  document.getElementById('eposter-modal').style.display = 'none';
+  if (!document.querySelector('.overlay-page.active')) {
+    document.body.style.overflow = '';
+  }
+};
+window.downloadEPoster = function() {
+  const canvas = document.getElementById('eposter-canvas');
+  canvas.toBlob(function(blob) {
+    const url  = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href  = url;
+    link.download = eposterDownloadName.replace(/\s+/g,'_') + '_eposter.png';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, 'image/png');
+};
+</script>
 
 <div class="confetti-wrap" id="confetti"></div>
 
@@ -1726,24 +1949,33 @@ function showFpParticipants() {
   }
 
   const medals = [
-    { emoji:'🥇', label:'1st Place', color:'var(--gold)',   bg:'rgba(255,215,0,0.1)',   border:'rgba(255,215,0,0.35)'   },
-    { emoji:'🥈', label:'2nd Place', color:'var(--silver)', bg:'rgba(192,192,192,0.1)', border:'rgba(192,192,192,0.35)' },
-    { emoji:'🥉', label:'3rd Place', color:'var(--bronze)', bg:'rgba(205,127,50,0.1)',  border:'rgba(205,127,50,0.35)'  },
+    { emoji:'🥇', label:'1ST PLACE', color:'var(--gold)',   bg:'rgba(255,215,0,0.1)',   border:'rgba(255,215,0,0.35)',   pos:'1ST' },
+    { emoji:'🥈', label:'2ND PLACE', color:'var(--silver)', bg:'rgba(192,192,192,0.1)', border:'rgba(192,192,192,0.35)', pos:'2ND' },
+    { emoji:'🥉', label:'3RD PLACE', color:'var(--bronze)', bg:'rgba(205,127,50,0.1)',  border:'rgba(205,127,50,0.35)',  pos:'3RD' },
   ];
 
   const cardsHtml = winners.map((w, i) => `
-    <div style="
-      background:${medals[i].bg};border:2px solid ${medals[i].border};
+    <div style="background:${medals[i].bg};border:2px solid ${medals[i].border};
       border-radius:16px;padding:22px 20px;display:flex;flex-direction:column;
       align-items:center;gap:8px;min-width:180px;flex:1;
-      animation:fadeInUp 0.4s ease both;animation-delay:${i*0.12}s;
-    ">
+      animation:fadeInUp 0.4s ease both;animation-delay:${i*0.12}s;">
       <div style="font-size:2.6rem">${medals[i].emoji}</div>
       <div style="font-size:0.72rem;font-weight:700;letter-spacing:2px;color:${medals[i].color};text-transform:uppercase">${medals[i].label}</div>
       <div style="font-size:1.1rem;font-weight:700;color:#fff;text-align:center;font-family:'Poppins',sans-serif">${w.name}</div>
       <div style="font-size:0.8rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase">${w.sector}</div>
+      
     </div>
   `).join('');
+
+  // ── Programme number (index in full programme list) ──
+  const safeKey2 = prog.replace(/[^a-zA-Z0-9]/g, '_');
+  const progIndex = (window.winnersResultNo && window.winnersResultNo[cat] && window.winnersResultNo[cat][safeKey2])
+    ? window.winnersResultNo[cat][safeKey2]
+    : 1;
+
+  const resultNo = window.winnersResultNo && window.winnersResultNo[cat] && window.winnersResultNo[cat][safeProgKey]
+    ? String(window.winnersResultNo[cat][safeProgKey]).padStart(3,'0')
+    : null;
 
   output.innerHTML = `
     <div style="margin-bottom:24px">
@@ -1751,7 +1983,15 @@ function showFpParticipants() {
       <h3 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.4rem;margin:6px 0 4px">${prog}</h3>
       <p style="color:var(--muted);font-size:0.85rem">Results Announced</p>
     </div>
-    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:32px">${cardsHtml}</div>
+    ${resultNo ? `<div class="score-count" style="margin-bottom:16px;display:inline-block;">Result No : ${resultNo}</div>` : ''}
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px">${cardsHtml}</div>
+    <button onclick="openEPoster('${cat.replace(/'/g,"\\'")}','${prog.replace(/'/g,"\\'")}',${progIndex})"
+      style="width:100%;background:rgba(29,207,180,0.1);border:1px solid rgba(29,207,180,0.35);
+      color:#1dcfb4;font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;
+      padding:14px;border-radius:12px;cursor:pointer;display:flex;align-items:center;
+      justify-content:center;gap:10px;margin-bottom:32px;">
+      DOWNLOAD POSTER
+    </button>
   `;
 }
 
@@ -1866,7 +2106,7 @@ if (!track || !dotsWrap) return;
 
       <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   const firebaseConfig = { 
     apiKey: "AIzaSyBug4Hk534sx4nOknAclJJNc8Wfwpy2LaA",
@@ -1880,6 +2120,9 @@ if (!track || !dotsWrap) return;
   
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
+  window._db = db;
+  window._get = get;
+  window._ref = ref;
   const dbRef = ref(db, 'scoreboard');
 
   const teams = [
@@ -2053,8 +2296,10 @@ if (scoreboardSection) observer.observe(scoreboardSection);
   onValue(winnersRef, (snap) => {
     const d = snap.val() || {};
     window.winnersData = {};
+    window.winnersResultNo = {};
     Object.keys(d).forEach(cat => {
       window.winnersData[cat] = {};
+      window.winnersResultNo[cat] = {};
       Object.keys(d[cat]).forEach(progKey => {
         const entry = d[cat][progKey];
         const arr = [];
@@ -2063,9 +2308,11 @@ if (scoreboardSection) observer.observe(scoreboardSection);
           if (p.name) arr.push({ name: p.name, sector: p.sector || '' });
         });
         if (arr.length) window.winnersData[cat][progKey] = arr;
+        if (entry.resultNo != null) window.winnersResultNo[cat][progKey] = entry.resultNo;
       });
     });
   });
+  
 </script>
 <script>
   function openSidebar() {
@@ -2090,10 +2337,18 @@ function openOverlay(id) {
   }
 }
 
-function closeOverlay(id) {
+  function closeOverlay(id) {
   document.getElementById(id).classList.remove('active');
   document.body.style.overflow = '';
+  if (id === 'overlay-results') {
+    document.getElementById('fpCatSelect').selectedIndex = 0;
+    const prog = document.getElementById('fpProgSelect');
+    prog.innerHTML = '<option value="">Select Your Programme</option>';
+    prog.disabled = true;
+    document.getElementById('fpResultOutput').innerHTML = '<div class="result-placeholder">Select a Category and Programme to view Result and Winners.</div>';
+  }
 }
+
 // Close overlay on back button (browser)
 window.addEventListener('popstate', function() {
   document.querySelectorAll('.overlay-page.active').forEach(function(el) {
