@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin — Sahityotsav'26</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&family=Montserrat:wght@400;700&family=Playfair+Display:wght@400;700&family=Roboto:wght@400;700&family=Lato:wght@400;700&family=Poppins:wght@400;700&family=Abril+Fatface&family=Raleway:wght@400;700&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -79,6 +79,15 @@
     }
   };
   window.doLogout = () => signOut(auth);
+  
+  window.switchTab = (id) => {
+  document.querySelectorAll('.main-tab-btn').forEach(b => {
+    b.classList.toggle('active', b.id === id + '-btn');
+  });
+  document.querySelectorAll('.main-tab-panel').forEach(p => {
+    p.classList.toggle('active', p.id === id + '-panel');
+  });
+};
 
   // ── INIT: build UI + load data ──
   function init() {
@@ -126,6 +135,7 @@
       // result count text
       const meta = d['_meta'] || {};
       if (document.getElementById('rcText')) document.getElementById('rcText').value = meta.rcText ?? 'After 0 Results';
+      if (document.getElementById('resultNo') && meta.resultNo != null) document.getElementById('resultNo').value = meta.resultNo;
     });
 
     onValue(ref(db, 'winners'), snap => {
@@ -142,6 +152,8 @@
             if (ne) ne.value = p.name || '';
             if (se) se.value = p.sector || '';
           });
+          const rnoEl = document.getElementById('w_rno_' + key);
+          if (rnoEl && entry.resultNo != null) rnoEl.value = entry.resultNo;
         });
       });
     });
@@ -185,7 +197,7 @@
   function buildResultTextTab() {
     const c = document.getElementById('resultTextTabContent');
     c.innerHTML = `
-      <div class="info-box">Type exactly what should appear on the scoreboard — e.g. <strong>"After 36 Results"</strong>. Can include any text and numbers.</div>
+      <div class="info-box">Type the scoreboard text and the current result number. Both will show on the public site.</div>
       <div class="meta-card">
         <div class="meta-label">Preview</div>
         <div class="meta-value" id="resultPreview">After 0 Results</div>
@@ -194,6 +206,7 @@
         <label class="field-label">Scoreboard Text</label>
         <input type="text" class="meta-input" style="width:100%;font-size:1.1rem" id="rcText" value="After 0 Results" oninput="updatePreview()" placeholder="After 0 Results"/>
       </div>
+      
       <div class="save-all-wrap" style="margin-top:24px">
         <button class="btn-primary" onclick="saveResultText()">💾 Save Result Text</button>
       </div>
@@ -208,6 +221,7 @@
 
   window.saveResultText = async () => {
     const text = document.getElementById('rcText').value.trim();
+    
     try {
       await set(ref(db, 'scoreboard/_meta'), { rcText: text });
       showToast('✓ Result text saved');
@@ -260,9 +274,13 @@
               </select>
             </div>`;
         }).join('');
-        html += `
+          html += `
           <div class="prog-card-edit">
             <div class="prog-name-label">${prog}</div>
+            <div class="place-row">
+              <span class="place-label">🔢 Result No</span>
+              <input type="number" class="prog-winner-inp" id="w_rno_${key}" placeholder="000" min="0" style="width:100px;"/>
+            </div>
             ${placesHtml}
           </div>
         `;
@@ -284,7 +302,7 @@
   window.saveCategory = async (cat) => {
     const progs = PROGRAMME_DATA[cat];
     const updates = {};
-    progs.forEach(prog => {
+    for (const prog of progs) {
       const key = safeKey(cat + '__' + prog);
       const entry = {};
       [1,2,3].forEach(place => {
@@ -292,122 +310,18 @@
         const sector = document.getElementById('w_sect_' + key + '_' + place)?.value || '';
         entry['p' + place] = { name, sector };
       });
+      const rno = document.getElementById('w_rno_' + key)?.value;
+      if (rno !== '' && rno != null) entry.resultNo = parseInt(rno) || 0;
       updates[safeKey(prog)] = entry;
-    });
+    }
     try {
       await set(ref(db, 'winners/' + cat), updates);
       showToast('✓ ' + cat + ' saved');
     } catch(e) { showToast('Error: ' + e.message, true); }
   };
 
-  // ── BUILD PARTICIPANTS TAB ──
-  function buildParticipantsTab() {
-    const c = document.getElementById('participantsTabContent');
-    c.innerHTML = '';
-
-    const info = document.createElement('div');
-    info.className = 'info-box';
-    info.innerHTML = 'Enter participant names — <strong>one name per line</strong> in each box. Click <strong>Save Sector</strong> to save.';
-    c.appendChild(info);
-
-    // Sector tabs
-    const sectTabs = document.createElement('div');
-    sectTabs.className = 'cat-tabs';
-    SECTORS.forEach((sector, i) => {
-      const btn = document.createElement('button');
-      btn.className = 'cat-tab' + (i === 0 ? ' active' : '');
-      btn.textContent = sector;
-      btn.onclick = () => switchSectorTab(sector);
-      btn.id = 'sectab_' + safeKey(sector);
-      sectTabs.appendChild(btn);
-    });
-    c.appendChild(sectTabs);
-
-    // Sector panels
-    SECTORS.forEach((sector, i) => {
-      const panel = document.createElement('div');
-      panel.className = 'cat-panel' + (i === 0 ? ' active' : '');
-      panel.id = 'secpanel_' + safeKey(sector);
-
-      let html = `<div class="part-grid">`;
-      PARTICIPANT_CATS.forEach(cat => {
-        const skey = safeKey(sector);
-        const ckey = safeKey(cat);
-        html += `
-          <div class="part-card">
-            <div class="prog-name-label">${cat}</div>
-            <textarea class="part-textarea" id="part_${skey}_${ckey}" placeholder="One name per line…" rows="6"></textarea>
-          </div>
-        `;
-      });
-      html += `</div>`;
-      html += `<div class="save-all-wrap" style="margin-top:20px"><button class="btn-primary" onclick="saveSector('${sector}')">💾 Save ${sector}</button></div>`;
-      panel.innerHTML = html;
-      c.appendChild(panel);
-    });
-  }
-
-  window.switchSectorTab = (sector) => {
-    document.querySelectorAll('#participantsTabContent .cat-tab').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('#participantsTabContent .cat-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('sectab_' + safeKey(sector))?.classList.add('active');
-    document.getElementById('secpanel_' + safeKey(sector))?.classList.add('active');
-  };
-
-  window.saveSector = async (sector) => {
-    const skey = safeKey(sector);
-    const updates = {};
-    PARTICIPANT_CATS.forEach(cat => {
-      const ckey = safeKey(cat);
-      const raw = document.getElementById('part_' + skey + '_' + ckey)?.value || '';
-      const names = raw.split('\n').map(s => s.trim()).filter(Boolean);
-      updates[ckey] = names;
-    });
-    try {
-      await set(ref(db, 'participants/' + skey), updates);
-      showToast('✓ ' + sector + ' participants saved');
-    } catch(e) { showToast('Error: ' + e.message, true); }
-  };
-
-  // ── SAVE SCORE ──
-  window.saveScore = async (key, name) => {
-    const inp = document.getElementById('score_' + key);
-    const score = parseInt(inp.value) || 0;
-    try {
-      await set(ref(db, 'scoreboard/' + key), { score });
-      showToast('✓ ' + name + ' saved');
-    } catch(e) { showToast('Error: ' + e.message, true); }
-  };
-
-  window.saveAllScores = async () => {
-    const btn = document.getElementById('saveAllScoresBtn');
-    btn.textContent = 'Saving…'; btn.disabled = true;
-    try {
-      const updates = {};
-      Object.keys(SECTOR_KEYS).forEach(name => {
-        const key = SECTOR_KEYS[name];
-        const val = parseInt(document.getElementById('score_' + key)?.value) || 0;
-        updates['scoreboard/' + key] = { score: val };
-      });
-      // result text is saved separately via saveResultText()
-      for (const [path, val] of Object.entries(updates)) {
-        await set(ref(db, path), val);
-      }
-      showToast('✓ All scores saved!');
-    } catch(e) { showToast('Error: ' + e.message, true); }
-    btn.textContent = '💾 Save All Scores'; btn.disabled = false;
-  };
-
-  // ── TAB SWITCH ──
-  window.switchTab = (tabId) => {
-    document.querySelectorAll('.main-tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.main-tab-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById(tabId + '-btn')?.classList.add('active');
-    document.getElementById(tabId + '-panel')?.classList.add('active');
-  };
-
-  // ── TOAST ──
-  function showToast(msg, isErr = false) {
+  // ── SHOW TOAST ──
+  function showToast(msg, isErr) {
     const t = document.getElementById('toast');
     t.textContent = msg;
     t.style.background = isErr ? '#ff4444' : '#1dcfb4';
@@ -415,15 +329,58 @@
     setTimeout(() => t.classList.remove('show'), 2500);
   }
 
-  // Enter key login
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('pass').addEventListener('keydown', e => {
-      if (e.key === 'Enter') window.doLogin();
+  // ── SAVE SCORE ──
+  window.saveScore = async (key, name) => {
+    const val = parseInt(document.getElementById('score_' + key)?.value) || 0;
+    try {
+      await set(ref(db, 'scoreboard/' + key + '/score'), val);
+      showToast('✓ ' + name + ' saved');
+    } catch(e) { showToast('Error: ' + e.message, true); }
+  };
+
+  // ── SAVE ALL SCORES ──
+  window.saveAllScores = async () => {
+    const btn = document.getElementById('saveAllScoresBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+    try {
+      const updates = {};
+      Object.entries(SECTOR_KEYS).forEach(([name, key]) => {
+        const val = parseInt(document.getElementById('score_' + key)?.value) || 0;
+        updates[key] = { score: val, name };
+      });
+      for (const [key, data] of Object.entries(updates)) {
+        await set(ref(db, 'scoreboard/' + key), data);
+      }
+      showToast('✓ All scores saved!');
+    } catch(e) { showToast('Error: ' + e.message, true); }
+    finally { if (btn) { btn.disabled = false; btn.textContent = '💾 Save All Scores'; } }
+  };
+
+  // ── SWITCH SECTOR TAB ──
+  window.switchSectorTab = (sector) => {
+    document.querySelectorAll('#participantsTabContent .cat-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#participantsTabContent .cat-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('sectab_' + safeKey(sector))?.classList.add('active');
+    document.getElementById('secpanel_' + safeKey(sector))?.classList.add('active');
+  };
+
+  // ── SAVE SECTOR ──
+  window.saveSector = async (sector) => {
+    const skey = safeKey(sector);
+    const updates = {};
+    PARTICIPANT_CATS.forEach(cat => {
+      const ckey = safeKey(cat);
+      const el = document.getElementById('part_' + skey + '_' + ckey);
+      const names = el ? el.value.split('\n').map(n => n.trim()).filter(Boolean) : [];
+      updates[ckey] = names;
     });
-  });
-  
-  
-// ── BUILD POSTERS TAB ──
+    try {
+      await set(ref(db, 'participants/' + skey), updates);
+      showToast('✓ ' + sector + ' saved');
+    } catch(e) { showToast('Error: ' + e.message, true); }
+  };
+
+  // ── BUILD POSTERS TAB ──
   function buildPostersTab() {
     const c = document.getElementById('postersTabContent');
     c.innerHTML = `
@@ -447,12 +404,12 @@
     const row = document.createElement('div');
     row.style.cssText = 'display:flex; gap:8px; align-items:center;';
     row.innerHTML = `
-      <input type="text" value="${url}" placeholder="https://res.cloudinary.com/..." 
+      <input type="text" value="${url}" placeholder="https://res.cloudinary.com/..."
         style="flex:1; background:#111; border:1px solid #2a2a2a; border-radius:6px; color:#e8e8e8; font-family:'Space Mono',monospace; font-size:0.82rem; padding:9px 12px; outline:none;"
         onfocus="this.style.borderColor='#1dcfb4'" onblur="this.style.borderColor='#2a2a2a'"/>
-      <button onclick="removePosterField(this)" 
-        style="background:rgba(255,80,80,0.12); border:1px solid rgba(255,80,80,0.3); color:#ff6b6b; border-radius:6px; width:36px; height:36px; font-size:1.1rem; cursor:pointer; flex-shrink:0; transition:background 0.2s;"
-        onmouseover="this.style.background='rgba(255,80,80,0.25)'" onmouseout="this.style.background='rgba(255,80,80,0.12)'">×</button>
+      <button onclick="removePosterField(this)"
+        style="background:rgba(255,80,80,0.12); border:1px solid rgba(255,80,80,0.3); color:#ff6b6b; border-radius:6px; width:36px; height:36px; font-size:1.1rem; cursor:pointer; flex-shrink:0;"
+        >×</button>
     `;
     list.appendChild(row);
   };
@@ -478,14 +435,318 @@
       const list = document.getElementById('posterUrlsList');
       if (!list) return;
       list.innerHTML = '';
-      if (urls && Array.isArray(urls)) {
-        urls.forEach(url => addPosterField(url));
-      }
+      if (urls && Array.isArray(urls)) urls.forEach(url => addPosterField(url));
     });
   }
+
+  // Enter key login
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('pass')?.addEventListener('keydown', e => {
+      if (e.key === 'Enter') window.doLogin();
+    });
+  });
+
+  // ── BUILD POSTER LAYOUT TAB ──
+  // ── BUILD POSTER LAYOUT TAB ──
+  const EP_CATS = ['LOWER PRIMARY','UPPER PRIMARY','HIGH SCHOOL','HIGHER SECONDARY','JUNIOR','SENIOR','GENERAL','CAMPUS'];
+  let currentEPCat = 'LOWER PRIMARY';
+  let epTemplateImgs = {}; // per-category loaded images
+
+  function buildParticipantsTab() {
+    const c = document.getElementById('participantsTabContent');
+
+    const FONTS = [
+      'Arial','Arial Black','Georgia','Times New Roman','Courier New','Verdana','Trebuchet MS',
+      'Montserrat','Playfair Display','Roboto','Lato','Poppins','Abril Fatface','Raleway','Oswald',
+      'Space Mono','Syne','DM Sans'
+    ];
+    const fontOptions = FONTS.map(f => `<option value="${f}">${f}</option>`).join('');
+
+    const fontRow = (id) => `
+      <div style="grid-column:1/-1">
+        <label class="field-label">Font</label>
+        <select id="ep_${id}_font" onchange="drawPreview()"
+          style="width:100%;background:#111;border:1px solid #2a2a2a;border-radius:6px;color:#e8e8e8;font-family:'DM Sans',sans-serif;font-size:0.88rem;padding:8px 10px;cursor:pointer;">
+          ${fontOptions}
+        </select>
+      </div>`;
+
+    const catTabs = EP_CATS.map(cat =>
+      `<button class="cat-tab${cat === currentEPCat ? ' active' : ''}" onclick="switchEPCat('${cat}')">${cat}</button>`
+    ).join('');
+
+    c.innerHTML = `
+      <div class="info-box">Each category can have its own template image and layout. Select a category tab to edit its settings.</div>
+
+      <div class="cat-tabs" id="ep-cat-tabs" style="margin-bottom:16px;">${catTabs}</div>
+
+      <!-- Template URL row -->
+      <div class="meta-card" style="margin-bottom:16px;">
+        <div class="meta-label">🖼️ Template Image URL</div>
+        <div style="display:flex;gap:8px;margin-top:10px;align-items:center;">
+          <input type="text" id="ep_template_url" placeholder="https://res.cloudinary.com/..."
+            style="flex:1;background:#111;border:1px solid #2a2a2a;border-radius:6px;color:#e8e8e8;font-family:'Space Mono',monospace;font-size:0.82rem;padding:9px 12px;outline:none;"
+            onfocus="this.style.borderColor='#1dcfb4'" onblur="this.style.borderColor='#2a2a2a'"
+            oninput="loadCurrentTemplateAndDraw()"/>
+          <button class="save-btn" onclick="loadCurrentTemplateAndDraw()">🔄 Reload</button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+        <!-- LEFT: CONTROLS -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+
+          <div class="meta-card">
+            <div class="meta-label">🔢 Result Number</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+              <div><label class="field-label">X Position</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('progNum_x',-1)">−</button><input type="range" min="0" max="1" step="0.01" id="ep_progNum_x" oninput="updateEPLabel('progNum_x');drawPreview()"><button class="nudge-btn" onclick="nudge('progNum_x',1)">+</button></div><span id="ep_progNum_x_val">0.30</span></div>
+              <div><label class="field-label">Y Position</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('progNum_y',-1)">−</button><input type="range" min="0" max="1" step="0.01" id="ep_progNum_y" oninput="updateEPLabel('progNum_y');drawPreview()"><button class="nudge-btn" onclick="nudge('progNum_y',1)">+</button></div><span id="ep_progNum_y_val">0.20</span></div>
+              <div><label class="field-label">Size</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('progNum_size',-1)">−</button><input type="range" min="0.05" max="0.4" step="0.01" id="ep_progNum_size" oninput="updateEPLabel('progNum_size');drawPreview()"><button class="nudge-btn" onclick="nudge('progNum_size',1)">+</button></div><span id="ep_progNum_size_val">0.18</span></div>
+              <div><label class="field-label">Color</label><input type="color" id="ep_progNum_color" value="#1a1a2e" oninput="drawPreview()" style="width:100%;height:36px;border-radius:6px;border:1px solid #2a2a2a;background:none;cursor:pointer;"></div>
+              <div style="grid-column:1/-1"><label class="field-label">Rotation (°)</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('progNum_rot',-1)">−</button><input type="range" min="-180" max="180" step="1" id="ep_progNum_rot" oninput="updateEPLabel('progNum_rot');drawPreview()"><button class="nudge-btn" onclick="nudge('progNum_rot',1)">+</button></div><span id="ep_progNum_rot_val">0</span></div>
+              ${fontRow('progNum')}
+            </div>
+          </div>
+
+          <div class="meta-card">
+            <div class="meta-label">🏷️ Category Label</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+              <div><label class="field-label">X Position</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('category_x',-1)">−</button><input type="range" min="0" max="1" step="0.01" id="ep_category_x" oninput="updateEPLabel('category_x');drawPreview()"><button class="nudge-btn" onclick="nudge('category_x',1)">+</button></div><span id="ep_category_x_val">0.30</span></div>
+              <div><label class="field-label">Y Position</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('category_y',-1)">−</button><input type="range" min="0" max="1" step="0.01" id="ep_category_y" oninput="updateEPLabel('category_y');drawPreview()"><button class="nudge-btn" onclick="nudge('category_y',1)">+</button></div><span id="ep_category_y_val">0.22</span></div>
+              <div><label class="field-label">Size</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('category_size',-1)">−</button><input type="range" min="0.01" max="0.15" step="0.005" id="ep_category_size" oninput="updateEPLabel('category_size');drawPreview()"><button class="nudge-btn" onclick="nudge('category_size',1)">+</button></div><span id="ep_category_size_val">0.038</span></div>
+              <div><label class="field-label">Color</label><input type="color" id="ep_category_color" value="#444444" oninput="drawPreview()" style="width:100%;height:36px;border-radius:6px;border:1px solid #2a2a2a;background:none;cursor:pointer;"></div>
+              <div style="grid-column:1/-1"><label class="field-label">Rotation (°)</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('category_rot',-1)">−</button><input type="range" min="-180" max="180" step="1" id="ep_category_rot" oninput="updateEPLabel('category_rot');drawPreview()"><button class="nudge-btn" onclick="nudge('category_rot',1)">+</button></div><span id="ep_category_rot_val">0</span></div>
+              ${fontRow('category')}
+            </div>
+          </div>
+
+          <div class="meta-card">
+            <div class="meta-label">📌 Programme Name</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+              <div><label class="field-label">X Position</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('programme_x',-1)">−</button><input type="range" min="0" max="1" step="0.01" id="ep_programme_x" oninput="updateEPLabel('programme_x');drawPreview()"><button class="nudge-btn" onclick="nudge('programme_x',1)">+</button></div><span id="ep_programme_x_val">0.30</span></div>
+              <div><label class="field-label">Y Position</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('programme_y',-1)">−</button><input type="range" min="0" max="1" step="0.01" id="ep_programme_y" oninput="updateEPLabel('programme_y');drawPreview()"><button class="nudge-btn" onclick="nudge('programme_y',1)">+</button></div><span id="ep_programme_y_val">0.28</span></div>
+              <div><label class="field-label">Size</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('programme_size',-1)">−</button><input type="range" min="0.01" max="0.15" step="0.005" id="ep_programme_size" oninput="updateEPLabel('programme_size');drawPreview()"><button class="nudge-btn" onclick="nudge('programme_size',1)">+</button></div><span id="ep_programme_size_val">0.052</span></div>
+              <div><label class="field-label">Color</label><input type="color" id="ep_programme_color" value="#1a1a2e" oninput="drawPreview()" style="width:100%;height:36px;border-radius:6px;border:1px solid #2a2a2a;background:none;cursor:pointer;"></div>
+              <div style="grid-column:1/-1"><label class="field-label">Rotation (°)</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('programme_rot',-1)">−</button><input type="range" min="-180" max="180" step="1" id="ep_programme_rot" oninput="updateEPLabel('programme_rot');drawPreview()"><button class="nudge-btn" onclick="nudge('programme_rot',1)">+</button></div><span id="ep_programme_rot_val">0</span></div>
+              ${fontRow('programme')}
+            </div>
+          </div>
+
+          <div class="meta-card">
+            <div class="meta-label">🏆 Winner Names</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+              <div><label class="field-label">X Position</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('winners_nameX',-1)">−</button><input type="range" min="0" max="1" step="0.01" id="ep_winners_nameX" oninput="updateEPLabel('winners_nameX');drawPreview()"><button class="nudge-btn" onclick="nudge('winners_nameX',1)">+</button></div><span id="ep_winners_nameX_val">0.12</span></div>
+              <div><label class="field-label">First Y</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('winners_firstY',-1)">−</button><input type="range" min="0" max="1" step="0.01" id="ep_winners_firstY" oninput="updateEPLabel('winners_firstY');drawPreview()"><button class="nudge-btn" onclick="nudge('winners_firstY',1)">+</button></div><span id="ep_winners_firstY_val">0.44</span></div>
+              <div><label class="field-label">Size</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('winners_nameSize',-1)">−</button><input type="range" min="0.01" max="0.15" step="0.005" id="ep_winners_nameSize" oninput="updateEPLabel('winners_nameSize');drawPreview()"><button class="nudge-btn" onclick="nudge('winners_nameSize',1)">+</button></div><span id="ep_winners_nameSize_val">0.048</span></div>
+              <div><label class="field-label">Gap</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('winners_gap',-1)">−</button><input type="range" min="0.05" max="0.3" step="0.005" id="ep_winners_gap" oninput="updateEPLabel('winners_gap');drawPreview()"><button class="nudge-btn" onclick="nudge('winners_gap',1)">+</button></div><span id="ep_winners_gap_val">0.115</span></div>
+              <div><label class="field-label">Color</label><input type="color" id="ep_winners_nameColor" value="#1a1a2e" oninput="drawPreview()" style="width:100%;height:36px;border-radius:6px;border:1px solid #2a2a2a;background:none;cursor:pointer;"></div>
+              <div style="grid-column:1/-1"><label class="field-label">Rotation (°)</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('winners_nameRot',-1)">−</button><input type="range" min="-180" max="180" step="1" id="ep_winners_nameRot" oninput="updateEPLabel('winners_nameRot');drawPreview()"><button class="nudge-btn" onclick="nudge('winners_nameRot',1)">+</button></div><span id="ep_winners_nameRot_val">0</span></div>
+              ${fontRow('winners_name')}
+            </div>
+          </div>
+
+          <div class="meta-card">
+            <div class="meta-label">📍 Sector Text</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+              <div><label class="field-label">X Position</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('winners_sectorX',-1)">−</button><input type="range" min="0" max="1" step="0.01" id="ep_winners_sectorX" oninput="updateEPLabel('winners_sectorX');drawPreview()"><button class="nudge-btn" onclick="nudge('winners_sectorX',1)">+</button></div><span id="ep_winners_sectorX_val">0.12</span></div>
+              <div><label class="field-label">Offset Y</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('winners_sectorOffsetY',-1)">−</button><input type="range" min="0.01" max="0.15" step="0.005" id="ep_winners_sectorOffsetY" oninput="updateEPLabel('winners_sectorOffsetY');drawPreview()"><button class="nudge-btn" onclick="nudge('winners_sectorOffsetY',1)">+</button></div><span id="ep_winners_sectorOffsetY_val">0.052</span></div>
+              <div><label class="field-label">Size</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('winners_sectorSize',-1)">−</button><input type="range" min="0.01" max="0.1" step="0.005" id="ep_winners_sectorSize" oninput="updateEPLabel('winners_sectorSize');drawPreview()"><button class="nudge-btn" onclick="nudge('winners_sectorSize',1)">+</button></div><span id="ep_winners_sectorSize_val">0.032</span></div>
+              <div><label class="field-label">Color</label><input type="color" id="ep_winners_sectorColor" value="#666666" oninput="drawPreview()" style="width:100%;height:36px;border-radius:6px;border:1px solid #2a2a2a;background:none;cursor:pointer;"></div>
+              <div style="grid-column:1/-1"><label class="field-label">Rotation (°)</label><div class="slider-row"><button class="nudge-btn" onclick="nudge('winners_sectorRot',-1)">−</button><input type="range" min="-180" max="180" step="1" id="ep_winners_sectorRot" oninput="updateEPLabel('winners_sectorRot');drawPreview()"><button class="nudge-btn" onclick="nudge('winners_sectorRot',1)">+</button></div><span id="ep_winners_sectorRot_val">0</span></div>
+              ${fontRow('winners_sector')}
+            </div>
+          </div>
+
+          <div class="save-all-wrap">
+            <button class="btn-primary" onclick="saveEPSettings()">💾 Save to Firebase</button>
+          </div>
+
+        </div>
+
+        <!-- RIGHT: LIVE PREVIEW -->
+        <div style="position:sticky;top:80px;align-self:start;">
+          <div class="meta-label" style="margin-bottom:10px;">👁️ Live Preview — <span id="ep-preview-cat-label" style="color:#1dcfb4;">LOWER PRIMARY</span></div>
+          <canvas id="ep-preview-canvas" style="width:100%;border-radius:12px;border:1px solid #2a2a2a;display:block;"></canvas>
+        </div>
+
+      </div>
+    `;
+
+    loadEPCatSettings(currentEPCat);
+  }
+
+  window.switchEPCat = function(cat) {
+    currentEPCat = cat;
+    document.querySelectorAll('#ep-cat-tabs .cat-tab').forEach(btn => {
+      btn.classList.toggle('active', btn.textContent === cat);
+    });
+    document.getElementById('ep-preview-cat-label').textContent = cat;
+    loadEPCatSettings(cat);
+  };
+
+  function loadEPCatSettings(cat) {
+    const catKey = cat.replace(/ /g,'_');
+    get(ref(db, 'epSettings/' + catKey)).then(snap => {
+      const s = snap.val();
+      if (s) applyEPSettings(s);
+      else setDefaultSliders();
+      // set template URL field
+      const urlEl = document.getElementById('ep_template_url');
+      if (urlEl) urlEl.value = s && s.template_url ? s.template_url : '';
+      loadCurrentTemplateAndDraw();
+    });
+  }
+
+  window.loadCurrentTemplateAndDraw = function() {
+    const urlEl = document.getElementById('ep_template_url');
+    const url = urlEl ? urlEl.value.trim() : '';
+    if (!url) { drawPreview(); return; }
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => { epTemplateImgs[currentEPCat] = img; drawPreview(); };
+    img.onerror = () => { showToast('Image failed to load. Check URL.', true); };
+    img.src = url + '?t=' + Date.now();
+  };
+  function setDefaultSliders() {
+    const defaults = {
+      progNum_x:'0.3', progNum_y:'0.2', progNum_size:'0.18', progNum_color:'#1a1a2e', progNum_rot:'0', progNum_font:'Arial',
+      category_x:'0.30', category_y:'0.22', category_size:'0.038', category_color:'#444444', category_rot:'0', category_font:'Arial',
+      programme_x:'0.30', programme_y:'0.28', programme_size:'0.052', programme_color:'#1a1a2e', programme_rot:'0', programme_font:'Arial',
+      winners_nameX:'0.12', winners_firstY:'0.44', winners_nameSize:'0.048', winners_gap:'0.115', winners_nameColor:'#1a1a2e', winners_nameRot:'0', winners_name_font:'Arial',
+      winners_sectorX:'0.12', winners_sectorOffsetY:'0.052', winners_sectorSize:'0.032', winners_sectorColor:'#666666', winners_sectorRot:'0', winners_sector_font:'Arial',
+    };
+    Object.entries(defaults).forEach(([k,v]) => {
+      const el = document.getElementById('ep_' + k);
+      if (el) el.value = v;
+      const lbl = document.getElementById('ep_' + k + '_val');
+      if (lbl) lbl.textContent = v;
+    });
+  }
+
+  function applyEPSettings(s) {
+    Object.entries(s).forEach(([k,v]) => {
+      const el = document.getElementById('ep_' + k);
+      if (el) el.value = v;
+      const lbl = document.getElementById('ep_' + k + '_val');
+      if (lbl) lbl.textContent = v;
+    });
+  }
+
+  window.updateEPLabel = (key) => {
+    const el = document.getElementById('ep_' + key);
+    const lbl = document.getElementById('ep_' + key + '_val');
+    if (el && lbl) lbl.textContent = parseFloat(el.value).toFixed(3);
+  };
+
+  window.nudge = function(id, dir) {
+    const el = document.getElementById('ep_' + id);
+    if (!el) return;
+    const step = parseFloat(el.step) || 0.01;
+    const min = parseFloat(el.min);
+    const max = parseFloat(el.max);
+    let val = parseFloat(el.value) + dir * step;
+    val = Math.min(max, Math.max(min, parseFloat(val.toFixed(6))));
+    el.value = val;
+    window.updateEPLabel(id);
+    window.drawPreview();
+  };
+  
+  let epTemplateImg = null;
+
+  function loadTemplateAndDraw() {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => { epTemplateImg = img; drawPreview(); };
+    img.src = 'https://res.cloudinary.com/dekucljsf/image/upload/q_auto/f_auto/v1780805068/IMG-20260607-WA0004_hicze7.jpg?t=' + Date.now();
+  }
+
+window.drawPreview = () => {
+    const canvas = document.getElementById('ep-preview-canvas');
+    if (!canvas) return;
+    const img = epTemplateImgs[currentEPCat];
+    if (!img) {
+      // draw blank grey placeholder
+      canvas.width = 600; canvas.height = 400;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#1a1a1a';
+      ctx.fillRect(0,0,600,400);
+      ctx.fillStyle = '#444';
+      ctx.font = '18px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('Paste template URL above', 300, 200);
+      return;
+    }
+    const W = img.naturalWidth;
+    const H = img.naturalHeight;
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, W, H);
+
+    const g = id => parseFloat(document.getElementById('ep_' + id)?.value || 0);
+    const c = id => document.getElementById('ep_' + id)?.value || '#000';
+    const f = id => document.getElementById('ep_' + id + '_font')?.value || 'Arial';
+    const deg = id => (parseFloat(document.getElementById('ep_' + id)?.value || 0) * Math.PI) / 180;
+
+    const drawRotated = (text, x, y, rotId) => {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(deg(rotId));
+      ctx.fillText(text, 0, 0);
+      ctx.restore();
+    };
+
+    ctx.fillStyle = c('progNum_color');
+    ctx.font = `bold ${Math.round(W * g('progNum_size'))}px '${f('progNum')}', Arial`;
+    ctx.textAlign = 'left';
+    drawRotated('01', W * g('progNum_x'), H * g('progNum_y'), 'progNum_rot');
+
+    ctx.fillStyle = c('category_color');
+    ctx.font = `${Math.round(W * g('category_size'))}px '${f('category')}', Arial`;
+    drawRotated(currentEPCat, W * g('category_x'), H * g('category_y'), 'category_rot');
+
+    ctx.fillStyle = c('programme_color');
+    ctx.font = `bold ${Math.round(W * g('programme_size'))}px '${f('programme')}', Arial`;
+    drawRotated('Literature Debate', W * g('programme_x'), H * g('programme_y'), 'programme_rot');
+
+    const sampleWinners = [{name:'Najib',sector:'Ozhur'},{name:'Sinan',sector:'Tanur Town'},{name:'Shafi',sector:'Kunnumpuram'}];
+    sampleWinners.forEach((w, i) => {
+      const y = H * g('winners_firstY') + (H * g('winners_gap') * i);
+      ctx.fillStyle = c('winners_nameColor');
+      ctx.font = `bold ${Math.round(W * g('winners_nameSize'))}px '${f('winners_name')}', Arial`;
+      ctx.textAlign = 'left';
+      drawRotated(w.name, W * g('winners_nameX'), y, 'winners_nameRot');
+      ctx.fillStyle = c('winners_sectorColor');
+      ctx.font = `${Math.round(W * g('winners_sectorSize'))}px '${f('winners_sector')}', Arial`;
+      drawRotated(w.sector, W * g('winners_sectorX'), y + H * g('winners_sectorOffsetY'), 'winners_sectorRot');
+    });
+  };
+  window.saveEPSettings = async () => {
+    const catKey = currentEPCat.replace(/ /g,'_');
+    const keys = [
+      'progNum_x','progNum_y','progNum_size','progNum_color','progNum_rot','progNum_font',
+      'category_x','category_y','category_size','category_color','category_rot','category_font',
+      'programme_x','programme_y','programme_size','programme_color','programme_rot','programme_font',
+      'winners_nameX','winners_firstY','winners_nameSize','winners_gap','winners_nameColor','winners_nameRot','winners_name_font',
+      'winners_sectorX','winners_sectorOffsetY','winners_sectorSize','winners_sectorColor','winners_sectorRot','winners_sector_font',
+    ];
+    const settings = {};
+    keys.forEach(k => {
+      const el = document.getElementById('ep_' + k);
+      if (el) settings[k] = el.value;
+    });
+    // save template URL
+    const urlEl = document.getElementById('ep_template_url');
+    if (urlEl && urlEl.value.trim()) settings.template_url = urlEl.value.trim();
+    try {
+      await set(ref(db, 'epSettings/' + catKey), settings);
+      showToast('✓ Saved layout for ' + currentEPCat + '!');
+    } catch(e) { showToast('Error: ' + e.message, true); }
+  };
   
   
   
+
 </script>
 
 <style>
@@ -687,6 +948,18 @@ body { background: var(--dark); color: var(--text); font-family: 'DM Sans', sans
   .rt-grid { flex-direction: column; }
   .meta-input.wide, .meta-input { width: 100%; }
 }
+
+.slider-row { display:flex; align-items:center; gap:6px; }
+.slider-row input[type=range] { flex:1; }
+.nudge-btn {
+  width:28px; height:28px; border-radius:6px; border:1px solid #2a2a2a;
+  background:#1a1a1a; color:#e8e8e8; font-size:1rem; font-weight:700;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; transition:background 0.15s;
+  line-height:1; padding:0;
+}
+.nudge-btn:hover { background:#2a2a2a; }
+
 </style>
 </head>
 <body>
@@ -725,7 +998,8 @@ body { background: var(--dark); color: var(--text); font-family: 'DM Sans', sans
       <button class="main-tab-btn" id="tab-scores-btn" onclick="switchTab('tab-scores')">🏆 Scores</button>
       <button class="main-tab-btn" id="tab-resulttext-btn" onclick="switchTab('tab-resulttext')">📝 Result Text</button>
       <button class="main-tab-btn" id="tab-winners-btn" onclick="switchTab('tab-winners')">🥇 Winners</button>
-      <button class="main-tab-btn" id="tab-participants-btn" onclick="switchTab('tab-participants')">👥 Participants</button>
+      <button class="main-tab-btn" id="tab-participants-btn" onclick="switchTab('tab-participants')">🎨 Poster Layout</button>
+
 <button class="main-tab-btn" id="tab-posters-btn" onclick="switchTab('tab-posters')">🖼️ Posters</button>
     </div>
 
@@ -745,10 +1019,10 @@ body { background: var(--dark); color: var(--text); font-family: 'DM Sans', sans
       <div id="winnersTabContent"></div>
     </div>
 
-    <!-- PARTICIPANTS PANEL -->
-    <div class="main-tab-panel" id="tab-participants-panel">
-      <div id="participantsTabContent"></div>
-    </div>
+    <!-- POSTER LAYOUT PANEL -->
+    <div class="main-tab-panel"      id="tab-participants-panel">
+     <div id="participantsTabContent"></div>
+   </div>
 
     <!-- POSTERS PANEL -->
     <div class="main-tab-panel" id="tab-posters-panel">
